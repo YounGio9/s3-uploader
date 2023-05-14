@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+
+  <body>
+    <form
+      action="/upload"
+      id="form"
+      method="POST"
+      enctype="multipart/form-data"
+    >
+      <h1>Node File uploader to s3 bucket</h1>
+      <input type="file" name="upload" id="upload" />
+
+      <button type="submit">Submit</button>
+    </form>
+
+    <style>
+      html,
+      body {
+        width: 100%;
+        height: 80%;
+      }
+      body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      form {
+        width: 40%;
+        display: grid;
+        gap: 25px;
+      }
+      button,
+      input[type="file"] {
+        font-size: 18px;
+      }
+    </style>
+  </body>
+  <script>
+    let fileToSubmit;
+    const fileInput = document.getElementById("upload");
+
+    const handleChange = (e) => {
+      fileToSubmit = e.target.files[0];
+    };
+    fileInput.addEventListener("change", handleChange);
+
+    const form = document.getElementById("form");
+
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+      console.log("Submitted");
+      const formData = new FormData();
+      formData.append("upload", fileToSubmit);
+      console.log(formData);
+      await fetch("/upload", {
+        method: "POST",
+        body: formData,
+      }).then((res) => {
+          console.log(res);
+        })
+        .catch((err) => {
+          console.error(err);
+        });
+    };
+
+    form.addEventListener("submit", handleSubmit);
+  </script>
+</html>
