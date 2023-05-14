@@ -15,7 +15,8 @@
       enctype="multipart/form-data"
     >
       <h1>Node File uploader to s3 bucket</h1>
-      <input type="file" name="upload" id="upload" />
+      <input type="file" name="uploads" multiple id="upload" />
+      <!-- <input type="file" name="upload" id="upload" /> -->
 
       <button type="submit">Submit</button>
     </form>
@@ -50,11 +51,12 @@
   </body>
 
   <script>
-    let fileToSubmit;
+    let filesToSubmit = [];
     const fileInput = document.getElementById("upload");
 
     const handleChange = (e) => {
-      fileToSubmit = e.target.files[0];
+      filesToSubmit = [...filesToSubmit, ...e.target.files];
+      console.log(filesToSubmit);
     };
     fileInput.addEventListener("change", handleChange);
 
@@ -64,8 +66,12 @@
       e.preventDefault();
       console.log("Submitted");
       const formData = new FormData();
-      formData.append("upload", fileToSubmit);
-      formData.append("name", 'Giovani')
+
+      filesToSubmit.forEach(file => {
+        formData.append("uploads", file);
+      })
+
+      formData.append("name", "Giovani");
       console.log(formData);
       await fetch("/upload", {
         method: "POST",
@@ -73,11 +79,11 @@
       })
         .then((res) => res.json())
         .then((res) => {
-          const { imageLink } = res.data;
+          const { imageLinks } = res.data;
           console.log(res.data);
 
           const imageUploaded = document.getElementById("uploadedImage");
-          imageUploaded.setAttribute("src", imageLink);
+          imageUploaded.setAttribute("src", imageLinks[0]);
         })
         .catch((err) => {
           console.error(err);
