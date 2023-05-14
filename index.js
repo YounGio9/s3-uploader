@@ -39,7 +39,7 @@ app.post("/upload", (req, res) => {
         Key: req.file.originalname,
         Body: req.file.buffer,
         ContentType: req.file.mimetype
-    } 
+    }
 
     const command = new PutObjectCommand(params)
 
