@@ -1,9 +1,14 @@
 const express = require("express");
 const cors = require("cors");
 const multer = require("multer");
-const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
+const {
+  S3Client,
+  PutObjectCommand,
+  GetObjectCommand,
+} = require("@aws-sdk/client-s3");
+const sharp = require("sharp");
+const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 require("dotenv").config();
-
 
 const app = express();
 app.use(cors());
@@ -34,18 +39,34 @@ app.post("/upload", (req, res) => {
     console.log("req.body", req.body);
     console.log("req.file", req.file);
 
+    // resize image image if you want
+
+    /*const buffer = await sharp(req.file.buffer)
+      .resize({ height: 1600, width: 840, fit: "contain" })
+      .toBuffer();
+      */
+    const imageName = Date.now() + req.file.originalname;
     const params = {
-        Bucket: process.env.AWS_BUCKET_NAME,
-        Key: req.file.originalname,
-        Body: req.file.buffer,
-        ContentType: req.file.mimetype
-    }
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: imageName,
+      Body: req.file.buffer,
+      ContentType: req.file.mimetype,
+    };
 
-    const command = new PutObjectCommand(params)
+    const commandToCreate = new PutObjectCommand(params);
+    await s3.send(commandToCreate);
 
-    await s3.send(command)
+    const getObjectParams = {
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: imageName,
+    };
+
+    const commandToGet = new GetObjectCommand(getObjectParams);
+
+    const imageLink = await getSignedUrl(s3, commandToGet);
+
     res.json({
-      body: req.file,
+      data: { imageLink, ...req.body },
     });
   });
 });
