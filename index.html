@@ -14,13 +14,13 @@
       method="POST"
       enctype="multipart/form-data"
     >
-      <h1>Node File uploader to s3 bucket</h1>
+      <h1>Node File uploader</h1>
       <input type="file" name="upload" id="upload" />
 
       <button type="submit">Submit</button>
     </form>
 
-    <img width="450" height="450" src="" id="uploadedImage" />
+    <h2 class="imageName"></h2>
 
     <style>
       html,
@@ -73,11 +73,11 @@
       })
         .then((res) => res.json())
         .then((res) => {
-          const { imageLink } = res.data;
+          const { fileName } = res.data;
           console.log(res.data);
 
-          const imageUploaded = document.getElementById("uploadedImage");
-          imageUploaded.setAttribute("src", imageLink);
+          const imageTitle = document.getElementsByClassName('imageName');
+          imageTitle[0].innerHTML = fileName
         })
         .catch((err) => {
           console.error(err);
